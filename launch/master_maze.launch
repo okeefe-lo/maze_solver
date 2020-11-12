@@ -1,0 +1,36 @@
+<launch>
+  
+  <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
+  <arg name="first_name"  default="master"/>
+
+  <arg name="master_x_pos" default="0.0"/>
+  <arg name="master_y_pos" default="0.0"/>
+  <arg name="master_z_pos" default="0.0"/>
+  <arg name="master_yaw"   default="0.0"/>
+
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find maze_solver)/worlds/maze_2.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <group ns = "$(arg first_name)">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <rosparam file="$(find maze_solver)/config/LDS-01.yaml" param="laser_params"/>
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
+      <param name="publish_frequency" type="double" value="50.0" />
+      <param name="tf_prefix" value="$(arg first_name)" />
+    </node>
+    
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg first_name) -x $(arg master_x_pos) -y $(arg master_y_pos) -z $(arg master_z_pos) -Y $(arg master_yaw) -param robot_description" />
+    <node pkg="maze_solver" name="master_controller" type="controller.py" output="screen" args="$(arg first_name)"/>
+  
+  </group>
+
+
+</launch>
