@@ -2,17 +2,12 @@
   
   <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
   <arg name="first_name"  default="master"/>
-  <arg name="second_name" default="slave"/>
 
   <arg name="master_x_pos" default="0.0"/>
   <arg name="master_y_pos" default="0.0"/>
   <arg name="master_z_pos" default="0.0"/>
   <arg name="master_yaw"   default="0.0"/>
 
-  <arg name="slave_x_pos" default="2.0"/>
-  <arg name="slave_y_pos" default="0.0"/>
-  <arg name="slave_z_pos" default="0.0"/>
-  <arg name="slave_yaw"   default="0.0"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find maze_solver)/worlds/maze_2.world"/>
@@ -36,18 +31,22 @@
     <node pkg="maze_solver" name="master_controller" type="controller.py" output="screen" args="$(arg first_name)"/>
   
   </group>
+  
+  <arg name="slam_methods" default="gmapping" doc="slam type [gmapping, cartographer, hector, karto, frontier_exploration]"/>
+  <arg name="configuration_basename" default="turtlebot3_lds_2d.lua"/>
+  <arg name="open_rviz" default="true"/>
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
-  <group ns = "$(arg second_name)">
-    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
-    <rosparam file="$(find maze_solver)/config/LDS-01.yaml" param="laser_params"/>
+  <!-- SLAM: Gmapping, Cartographer, Hector, Karto, Frontier_exploration, RTAB-Map -->
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_$(arg slam_methods).launch">
+    <arg name="model" value="$(arg model)"/>
+    <arg name="configuration_basename" value="$(arg configuration_basename)"/>
+  </include>
 
-    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
-      <param name="publish_frequency" type="double" value="50.0" />
-      <param name="tf_prefix" value="$(arg second_name)" />
-    </node>
-
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg model) -x $(arg slave_x_pos) -y $(arg slave_y_pos) -z $(arg slave_z_pos) -Y $(arg slave_yaw) -param robot_description" />
-    <node pkg="maze_solver" name="slave_controller" type="controller.py" output="screen" args="$(arg second_name)"/>
+  <!-- rviz -->
+  <group if="$(arg open_rviz)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find maze_solver)/rviz/master_gmapping.rviz"/>
   </group>
 
 

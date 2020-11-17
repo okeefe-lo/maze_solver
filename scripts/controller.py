@@ -1,17 +1,35 @@
 """Controls the movement of the robot"""
 import sys
+import time
 import rospy
+from math import pi
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+from tf.transformations import euler_from_quaternion
 
 global laser_params
 global ranges
+global current_pose
+global desired_pose
+global wall
 
 def laser_callback(data):
     """Updates laser scan data"""
 
     global ranges
     ranges = data.ranges
+
+def odom_callback(data):
+    """Updates position data"""
+
+    global current_pose
+    euler = euler_from_quaternion([\
+        data.pose.pose.orientation.x, \
+        data.pose.pose.orientation.y, \
+        data.pose.pose.orientation.z, \
+        data.pose.pose.orientation.w])
+    current_pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler[2]]
 
 def controller():
     """Creates a publisher of type twist to move the robot"""
@@ -54,20 +72,30 @@ def controller():
 
 def mapping(old_fwd_vel, old_ang_vel):
     """Script that determines how best to move through map"""
-    new_fwd_vel = .1
-    new_ang_vel = 0
-
-    # Avoid Hitting Wall in front
-    global ranges
-    if ranges[0] < .2:
-        new_fwd_vel = 0
-    if old_fwd_vel == 0:
-        if (ranges[270] > .2):
-            new_ang_vel = -1.57
-        elif (ranges[90] > .2):
-            new_ang_vel = 1.57
+    global wall
+    attached = wall
+    if attached == 'none':
+        new_fwd_vel = .2
+        new_ang_vel = 0
+        if ranges[0] < .2:
+            new_fwd_vel = 0
+            attached = 'left'
+    elif attached == 'left':
+        if abs(old_ang_vel) > 0:
+            new_fwd_vel = 0
+            new_ang_vel = old_ang_vel
+            if abs(desired_pose[2] - current_pose[2]) < .05:
+                new_ang_vel = 0
+        elif ranges[0] < .2:
+            new_fwd_vel = 0
+            desired_pose[2] = current_pose[2] - pi/2
+            new_ang_vel = -.2
+        elif ranges[90] > .2:
+            new_fwd_vel = 0
+            desired_pose[2] = current_pose[2] + pi/2
         else:
-            new_ang_vel = 1.57
+            new_fwd_vel = 0
+            new_ang_vel = 0
 
     return [new_fwd_vel, new_ang_vel]
 
@@ -84,6 +112,12 @@ if __name__ == '__main__':
     # range_max = laser_params['range_max']
     # laser_num = laser_params['laser_num']
 
+    global desired_pose
+    desired_pose =[0, 0, 0]
+    global wall
+    wall = 'none'
+
     rospy.Subscriber('/' + sys.argv[1] + "/scan", LaserScan, laser_callback)
+    rospy.Subscriber('/' + sys.argv[1] + "/odom", Odometry, odom_callback)
     if(sys.argv[1]) == "master":
         controller()
