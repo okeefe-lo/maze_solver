@@ -1,13 +1,13 @@
 <launch>
   
   <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
+  <env name="TURTLEBOT3_MODEL" value="burger" />
   <arg name="first_name"  default="master"/>
 
   <arg name="master_x_pos" default="0.0"/>
   <arg name="master_y_pos" default="0.0"/>
   <arg name="master_z_pos" default="0.0"/>
   <arg name="master_yaw"   default="0.0"/>
-
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find maze_solver)/worlds/maze_2.world"/>
@@ -16,6 +16,10 @@
     <arg name="gui" value="true"/>
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
+  </include>
+
+  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_gazebo_rviz.launch">
+    <arg name="model" value="burger"/>
   </include>
 
   <group ns = "$(arg first_name)">
@@ -31,6 +35,5 @@
     <node pkg="maze_solver" name="master_controller" type="controller.py" output="screen" args="$(arg first_name)"/>
   
   </group>
-
 
 </launch>

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Controls the movement of the robot"""
 import sys
 import time
@@ -6,7 +8,8 @@ from math import pi
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
-from tf.transformations import euler_from_quaternion
+# from tf.transformations import euler_from_quaternion
+from squaternion import Quaternion
 
 global laser_params
 global ranges
@@ -24,11 +27,16 @@ def odom_callback(data):
     """Updates position data"""
 
     global current_pose
-    euler = euler_from_quaternion([\
-        data.pose.pose.orientation.x, \
+    q = Quaternion(data.pose.pose.orientation.x, \
         data.pose.pose.orientation.y, \
         data.pose.pose.orientation.z, \
-        data.pose.pose.orientation.w])
+        data.pose.pose.orientation.w)
+    euler = q.to_euler(degrees=False)
+    # euler = euler_from_quaternion([\
+    #     data.pose.pose.orientation.x, \
+    #     data.pose.pose.orientation.y, \
+    #     data.pose.pose.orientation.z, \
+    #     data.pose.pose.orientation.w])
     current_pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler[2]]
 
 def controller():
