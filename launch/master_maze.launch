@@ -1,13 +1,16 @@
 <launch>
   
   <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
-  <env name="TURTLEBOT3_MODEL" value="burger" />
+  <env name="TURTLEBOT3_MODEL" value="$(arg model)" />
   <arg name="first_name"  default="master"/>
 
-  <arg name="master_x_pos" default="0.0"/>
-  <arg name="master_y_pos" default="0.0"/>
+  <arg name="slam_methods" default="gmapping" doc="slam type [gmapping, cartographer, hector, karto, frontier_exploration]"/>
+  <arg name="configuration_basename" default="turtlebot3_lds_2d.lua"/>
+
+  <arg name="master_x_pos" default="-0.3"/>
+  <arg name="master_y_pos" default="-3.0"/>
   <arg name="master_z_pos" default="0.0"/>
-  <arg name="master_yaw"   default="0.0"/>
+  <arg name="master_yaw"   default="1.57"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find maze_solver)/worlds/maze_2.world"/>
@@ -18,9 +21,15 @@
     <arg name="debug" value="false"/>
   </include>
 
-  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_gazebo_rviz.launch">
-    <arg name="model" value="burger"/>
+  <include file="$(find turtlebot3_slam)/launch/turtlebot3_$(arg slam_methods).launch">
+    <arg name="model" value="$(arg model)"/>
+    <arg name="configuration_basename" value="$(arg configuration_basename)"/>
   </include>
+
+  <node pkg="rviz" type="rviz" name="rviz" required="true"
+      args="-d $(find maze_solver)/rviz/master_gmapping.rviz"/>
+      
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
 
   <group ns = "$(arg first_name)">
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
@@ -31,9 +40,10 @@
       <param name="tf_prefix" value="$(arg first_name)" />
     </node>
     
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_burger -x $(arg master_x_pos) -y $(arg master_y_pos) -z $(arg master_z_pos) -Y $(arg master_yaw) -param robot_description" />
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_$(arg model) -x $(arg master_x_pos) -y $(arg master_y_pos) -z $(arg master_z_pos) -Y $(arg master_yaw) -param robot_description" />
     <node pkg="maze_solver" name="master_controller" type="controller.py" output="screen" args="$(arg first_name)"/>
-  
+
   </group>
+
 
 </launch>

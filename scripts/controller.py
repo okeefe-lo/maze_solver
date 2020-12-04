@@ -2,7 +2,6 @@
 
 """Controls the movement of the robot"""
 import sys
-import time
 import rospy
 from math import pi
 from geometry_msgs.msg import Twist
@@ -15,7 +14,7 @@ global laser_params
 global ranges
 global current_pose
 global desired_pose
-global wall
+global status
 
 def laser_callback(data):
     """Updates laser scan data"""
@@ -32,12 +31,10 @@ def odom_callback(data):
         data.pose.pose.orientation.z, \
         data.pose.pose.orientation.w)
     euler = q.to_euler(degrees=False)
-    # euler = euler_from_quaternion([\
-    #     data.pose.pose.orientation.x, \
-    #     data.pose.pose.orientation.y, \
-    #     data.pose.pose.orientation.z, \
-    #     data.pose.pose.orientation.w])
-    current_pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler[2]]
+    current_pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler[0]]
+
+def euclidean(current, start):
+    return (((current[0]-start[0]) ** 2) + ((current[1]-start[1]) ** 2)) ** .5
 
 def controller():
     """Creates a publisher of type twist to move the robot"""
@@ -80,29 +77,75 @@ def controller():
 
 def mapping(old_fwd_vel, old_ang_vel):
     """Script that determines how best to move through map"""
-    global wall
-    attached = wall
-    if attached == 'none':
-        new_fwd_vel = .2
+    global status
+    global start_pos
+    global current_pose
+    attached = status
+    k = .1
+    d_forward = .1
+    if attached == "NONE":
+        new_fwd_vel = d_forward
         new_ang_vel = 0
-        if ranges[0] < .2:
+        print("Unattached")
+        if ranges[0] < .25:
             new_fwd_vel = 0
-            attached = 'left'
-    elif attached == 'left':
-        if abs(old_ang_vel) > 0:
-            new_fwd_vel = 0
-            new_ang_vel = old_ang_vel
-            if abs(desired_pose[2] - current_pose[2]) < .05:
-                new_ang_vel = 0
-        elif ranges[0] < .2:
+            status = "LEFT"
+            print("Attaching")
+            print("Turn RIGHT")
             new_fwd_vel = 0
             desired_pose[2] = current_pose[2] - pi/2
-            new_ang_vel = -.2
-        elif ranges[90] > .2:
+            diff = desired_pose[2] - current_pose[2]
+            if diff > pi:
+                diff = diff - 2 * pi
+            if diff < -pi:
+                diff = diff + 2 * pi 
+            new_ang_vel = k * diff
+    elif attached == "FORWARD":
+        new_fwd_vel = d_forward
+        new_ang_vel = 0
+        if ranges[0] < .25:
+            new_fwd_vel = 0
+            new_ang_vel = 0
+            status = "LEFT"
+        elif euclidean(current_pose, start_pos) > .2:
+            new_fwd_vel = 0
+            new_ang_vel = 0
+            status = "LEFT"
+            print("Moving .2 meters")
+    else:
+        status = "LEFT"
+        if abs(old_ang_vel) > 0:
+            print("Turning")
+            new_fwd_vel = 0
+            new_ang_vel = old_ang_vel
+            if abs(desired_pose[2] - current_pose[2]) < .005:
+                new_fwd_vel = d_forward
+                new_ang_vel = 0
+                start_pos = [current_pose[0], current_pose[1]]
+                status = "FORWARD"
+        elif (ranges[90] > .2) & (ranges[135] > .3):
+            print("Turn LEFT")
             new_fwd_vel = 0
             desired_pose[2] = current_pose[2] + pi/2
-        else:
+            diff = desired_pose[2] - current_pose[2]
+            if diff > pi:
+                diff = diff - 2 * pi
+            if diff < -pi:
+                diff = diff + 2 * pi 
+            new_ang_vel = k * diff
+        elif ranges[0] < .25:
+            print("Turn RIGHT")
             new_fwd_vel = 0
+            desired_pose[2] = current_pose[2] - pi/2
+            diff = desired_pose[2] - current_pose[2]
+            if diff > pi:
+                diff = diff - 2 * pi
+            if diff < -pi:
+                diff = diff + 2 * pi 
+            new_ang_vel = k * diff
+        else:
+            print("Move FORWARD")
+            new_fwd_vel = d_forward
             new_ang_vel = 0
 
     return [new_fwd_vel, new_ang_vel]
@@ -121,9 +164,9 @@ if __name__ == '__main__':
     # laser_num = laser_params['laser_num']
 
     global desired_pose
+    global status
     desired_pose =[0, 0, 0]
-    global wall
-    wall = 'none'
+    status = "NONE"
 
     rospy.Subscriber('/' + sys.argv[1] + "/scan", LaserScan, laser_callback)
     rospy.Subscriber('/' + sys.argv[1] + "/odom", Odometry, odom_callback)
