@@ -3,6 +3,7 @@
 """Controls the movement of the robot"""
 import sys
 import rospy
+import numpy as np
 from math import pi
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
@@ -35,6 +36,11 @@ def odom_callback(data):
 
 def euclidean(current, start):
     return (((current[0]-start[0]) ** 2) + ((current[1]-start[1]) ** 2)) ** .5
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    index = (np.abs(array - value)).argmin()
+    return array[index]
 
 def controller():
     """Creates a publisher of type twist to move the robot"""
@@ -83,15 +89,16 @@ def mapping(old_fwd_vel, old_ang_vel):
     attached = status
     k = .1
     d_forward = .1
+    directions = np.array([0, pi/2, pi, 3*pi/2])
     if attached == "NONE":
         new_fwd_vel = d_forward
         new_ang_vel = 0
-        print("Unattached")
+        # print("Unattached")
         if ranges[0] < .25:
             new_fwd_vel = 0
             status = "LEFT"
-            print("Attaching")
-            print("Turn RIGHT")
+            # print("Attaching")
+            # print("Turn RIGHT")
             new_fwd_vel = 0
             desired_pose[2] = current_pose[2] - pi/2
             diff = desired_pose[2] - current_pose[2]
@@ -111,11 +118,11 @@ def mapping(old_fwd_vel, old_ang_vel):
             new_fwd_vel = 0
             new_ang_vel = 0
             status = "LEFT"
-            print("Moving .2 meters")
+            # print("Moving .2 meters")
     else:
         status = "LEFT"
         if abs(old_ang_vel) > 0:
-            print("Turning")
+            # print("Turning")
             new_fwd_vel = 0
             new_ang_vel = old_ang_vel
             if abs(desired_pose[2] - current_pose[2]) < .005:
@@ -124,9 +131,10 @@ def mapping(old_fwd_vel, old_ang_vel):
                 start_pos = [current_pose[0], current_pose[1]]
                 status = "FORWARD"
         elif (ranges[90] > .2) & (ranges[135] > .3):
-            print("Turn LEFT")
+            # print("Turn LEFT")
             new_fwd_vel = 0
             desired_pose[2] = current_pose[2] + pi/2
+            desired_pose[2] = find_nearest(directions, desired_pose[2])
             diff = desired_pose[2] - current_pose[2]
             if diff > pi:
                 diff = diff - 2 * pi
@@ -134,9 +142,10 @@ def mapping(old_fwd_vel, old_ang_vel):
                 diff = diff + 2 * pi 
             new_ang_vel = k * diff
         elif ranges[0] < .25:
-            print("Turn RIGHT")
+            # print("Turn RIGHT")
             new_fwd_vel = 0
             desired_pose[2] = current_pose[2] - pi/2
+            desired_pose[2] = find_nearest(directions, desired_pose[2])
             diff = desired_pose[2] - current_pose[2]
             if diff > pi:
                 diff = diff - 2 * pi
@@ -144,10 +153,11 @@ def mapping(old_fwd_vel, old_ang_vel):
                 diff = diff + 2 * pi 
             new_ang_vel = k * diff
         else:
-            print("Move FORWARD")
+            # print("Move FORWARD")
             new_fwd_vel = d_forward
             new_ang_vel = 0
 
+    print(current_pose[2])
     return [new_fwd_vel, new_ang_vel]
 
 if __name__ == '__main__':
