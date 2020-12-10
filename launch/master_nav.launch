@@ -3,13 +3,13 @@
   <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
   <env name="TURTLEBOT3_MODEL" value="$(arg model)" />
 
-  <arg name="map_file" default="$(find maze_solver)/maps/partial2.yaml"/>
+  <arg name="map_file" default="$(find maze_solver)/maps/full.yaml"/>
   <arg name="move_forward_only" default="false"/>
 
-  <arg name="master_x_pos" default="-0.3"/>
-  <arg name="master_y_pos" default="-3.0"/>
-  <arg name="master_z_pos" default="0.0"/>
-  <arg name="master_yaw"   default="1.57"/>
+  <arg name="master_x_pos" default="0"/>
+  <arg name="master_y_pos" default="0"/>
+  <arg name="master_z_pos" default="0"/>
+  <arg name="master_yaw"   default="0"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find maze_solver)/worlds/maze2.world"/>

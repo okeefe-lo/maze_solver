@@ -12,7 +12,8 @@ from squaternion import Quaternion
 def target_callback(data):
 
     # To send movement command from command line
-    # rostopic pub /target geometry_msgs/Point '{x: -0.3, y: -2.0}'
+    # rostopic pub /target geometry_msgs/Point '{ -1.25, y: 0.13}'
+
     print("MESSAGE RECEIVED")
 
     global target_pose
