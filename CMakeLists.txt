@@ -162,6 +162,8 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/mapping.py
   scripts/navigation.py
+  scripts/rescuer.py
+  scripts/rescued.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

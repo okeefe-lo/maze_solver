@@ -31,7 +31,7 @@ def target_callback(data):
     target_pose = [data.x, data.y]
 
     pub.publish(target)
-    time.sleep(1)
+    time.sleep(.1)
     pub.publish(target)
 
 def odom_callback(data):
@@ -84,11 +84,11 @@ if __name__ == '__main__':
 
         while not rospy.is_shutdown():
             
-            if (euclidean(current_pose, target_pose) < .1):
+            if (euclidean(current_pose, target_pose) < .05):
                 start_time = time.time()
                 time.sleep(6)
                 spawn(spawn_pose)
-                time.sleep(1)
+                time.sleep(.1)
                 spawn(spawn_pose)
 
 
