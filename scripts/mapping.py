@@ -33,6 +33,8 @@ def euclidean(current, start):
     return (((current[0]-start[0]) ** 2) + ((current[1]-start[1]) ** 2)) ** .5
 
 def find_nearest(array, value):
+    "Find nearest value in array"
+
     array = np.asarray(array)
     index = (np.abs(array - value)).argmin()
     return array[index]
@@ -58,35 +60,48 @@ def controller():
         rate = rospy.Rate(20)
         data = Twist()
 
+        global current_pose
+        global ranges
+
         new_fwd_vel = 0
         new_ang_vel = 0
         old_fwd_vel = 0
         old_ang_vel = 0
 
-        global current_pose
-        global ranges
-
-        start_pose = current_pose
         desired_pose = current_pose
 
+        # Prior distance to left hand wall
         last_dis = 0
-        start_pose2 = current_pose
 
-        first_encounter = current_pose
+        # Timer before robot considers heading back to spawn
         start_time = 0
+        # Spawn location
         spawn_pose = current_pose
+        # Location where robot first encountered wall
+        first_encounter = current_pose
+        # Location where robot finished turning, used to identify minimum move distance after turning (move_dis)
+        turn_pose = current_pose
+        # Location where robot passes wall on left, used to identify minumum move distance after passing wall (past_wall)
+        wall_pose = current_pose
 
+        # Possible Status: Finding Wall, FORWARD, TURNING, SPAWN, IDENTIFY (defaults forward, searches for turns)
         status = "Finding Wall"
+        # Possible robot directions, assumes 90 degree turns only
         directions = np.array([0, pi/2, pi, -pi/2, -pi])
 
+        # Parameters to change
         # Angular velocity constant
-        k = 1
-
+        k = .75
         # Ideal forward velocity
-        d_fwd = .05
-
+        d_fwd = .02
         # Front clearence
         clearence = .17
+        # Back left clearence to ensure robot will not hit wall when turning left (clearence is based off of 125 degrees left of robot center)
+        left_clearence = .17
+        # Distance to move after turning
+        move_dis = .3
+        # Distance to move after passing wall before turning
+        past_wall = .075
 
         while not rospy.is_shutdown():
 
@@ -99,8 +114,9 @@ def controller():
             if abs(diff) > .05:
                 status = "TURNING"
 
-            if abs(ranges[90] - last_dis) > .25:
-                start_pose2 = current_pose
+            # Check if robot passed wall on left
+            if abs(ranges[90] - last_dis) > .15:
+                wall_pose = current_pose
                 print("Moved Past Wall")
             
             # Choose what directions to go
@@ -123,23 +139,23 @@ def controller():
                     status = "IDENTIFY"
                     new_fwd_vel = 0
                     print("Hitting Wall")
-                elif euclidean(current_pose, start_pose) > .26:
+                elif euclidean(current_pose, turn_pose) > move_dis:
                     status = "IDENTIFY"
                     new_fwd_vel = 0
                     new_ang_vel = 0
-                    print("Moved .26 meters")
+                    print("Moved ", move_dis, " meters")
                 elif abs(ranges[90] - last_dis) > .15:
-                    start_pose2 = current_pose
+                    wall_pose = current_pose
                     print("Moved Past Wall")
                 print("Moving FORWARD")
-            elif status == "TURNING":
+            elif status == "TURNING":                
                 new_fwd_vel = 0
-                if abs(diff) < .01:
+                if (abs(diff) < .01):
                     new_fwd_vel = d_fwd
                     new_ang_vel = 0
-                    start_pose = [current_pose[0], current_pose[1]]
+                    turn_pose = [current_pose[0], current_pose[1]]
                     status = "FORWARD"
-                print("Turning")
+                print("Turning ", diff)
             elif status == "SPAWN":
                 diff = desired_pose[2] - current_pose[2]
                 if diff >= pi:
@@ -151,16 +167,15 @@ def controller():
                     if abs(diff) < .01:
                         new_fwd_vel = d_fwd
                         new_ang_vel = 0
-                        start_pose = [current_pose[0], current_pose[1]]
+                        turn_pose = [current_pose[0], current_pose[1]]
                 elif (euclidean(current_pose,first_encounter) <.2): 
                     print("ARRIVED")
                     new_fwd_vel = 0
                 else:
                     new_fwd_vel = d_fwd
             else:
-                if (min(ranges[90], ranges[89], ranges[91]) > .30) and (ranges[125] > .18) and (euclidean(current_pose, start_pose2) > .08):
-                    print("HERES WHY  ", min(ranges[90], ranges[89], ranges[91]), "   ", ranges[125], "  ", euclidean(current_pose, start_pose2))
-                    #For .2 dis from wall use [120] and .2, for .18 use [25] and .2
+                if (min(ranges[90], ranges[89], ranges[91]) > .30) and (ranges[125] > left_clearence) and (euclidean(current_pose, wall_pose) > past_wall):
+                    print("HERES WHY  ", min(ranges[90], ranges[89], ranges[91]), "   ", ranges[125], "  ", euclidean(current_pose, wall_pose))
                     status == "TURNING"
                     new_fwd_vel = 0
                     desired_pose[2] = current_pose[2] + pi/2
@@ -172,7 +187,7 @@ def controller():
                     diff = desired_pose[2] - current_pose[2]
                     print("Turn LEFT")
                 elif min(ranges[0], ranges[1], ranges[359]) < clearence:
-                    print("HERES WHY  ", min(ranges[90], ranges[89], ranges[91]), "   ", ranges[125], "  ", euclidean(current_pose, start_pose2))
+                    print("HERES WHY  ", min(ranges[90], ranges[89], ranges[91]), "   ", ranges[125], "  ", euclidean(current_pose, wall_pose))
                     status == "TURNING"
                     new_fwd_vel = 0
                     desired_pose[2] = current_pose[2] - pi/2
@@ -186,10 +201,11 @@ def controller():
                 else:
                     new_fwd_vel = d_fwd
                     if abs(ranges[90] - last_dis) > .15:
-                        start_pose2 = current_pose
+                        wall_pose = current_pose
                         print("Moved Past Wall")
                     print("Default: Forward")
 
+            # Find angular velocity to face current direction
             diff = desired_pose[2] - current_pose[2]
             if diff >= pi:
                 diff = diff - 2 * pi
@@ -197,6 +213,7 @@ def controller():
                 diff = diff + 2 * pi 
             new_ang_vel = k * diff
 
+            # If robot returns to where it first found wall, turn and return to spawn location
             if (start_time - time.time() > 30) and (euclidean(current_pose,first_encounter) <.2):
                 spawn = "TRUE"    
                 desired_pose[2] = current_pose[2] - pi/2
@@ -205,7 +222,6 @@ def controller():
                 if desired_pose[2] < -pi:
                     desired_pose[2] = desired_pose[2] + 2 * pi 
                 desired_pose[2] = find_nearest(directions, desired_pose[2]) 
-
 
             # Set data to publish
             data.linear.x = new_fwd_vel
