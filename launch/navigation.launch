@@ -1,0 +1,76 @@
+<launch>
+    <!-- Configurable args -->
+    <arg name="nav_bringup" default="true"/>
+    <arg name="open_rviz"   default="true"/>
+    
+    <!-- Required args -->
+    <arg name="turtlebot3_model"/>
+    <arg name="za_warudo_map"/>
+    
+    <!-- Bringup -->
+    <group if="$(arg nav_bringup)">
+        <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+            <arg name="model" value="$(arg turtlebot3_model)"/>
+        </include>
+    </group>
+    
+    <!-- Map server -->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(arg za_warudo_map)"/>
+    
+    <!-- AMCL -->
+    <include file="$(find maze_solver)/launch/localization.launch">
+        <!-- Initial filter state -->
+        <arg name="initial_pose_x" value="0.0"/> <!-- m -->
+        <arg name="initial_pose_y" value="0.0"/> <!-- m -->
+        <arg name="initial_pose_a" value="0.0"/> <!-- rad -->
+        <!-- Initial covariance -->
+        <arg name="initial_cov_xx" value="$(eval 0.5*0.5)"/> <!-- m2; what's a good sigma value? -->
+        <arg name="initial_cov_yy" value="$(eval 0.5*0.5)"/> <!-- m2; what's a good sigma value? -->
+        <arg name="initial_cov_aa" value="$(eval 3.14159*3.14159/144)"/> <!-- rad2; what's a good sigma value? -->
+        <!-- Maximum truth-estimate difference -->
+        <arg name="kld_err" value="0.02"/>
+        <!-- Update thresholds -->
+        <arg name="update_min_d" value="0.2"/>
+        <arg name="update_min_a" value="0.2"/>
+        <!-- Resampling -->
+        <arg name="resample_interval"    value="1"/>
+        <arg name="selective_resampling" value="false"/>
+        <!-- Particle filter -->
+        <arg name="min_particles" value="500"/>
+        <arg name="max_particles" value="3000"/>
+        <!-- LIDAR/Odometry noise -->
+        <arg name="laser_sigma_hit" value="0.2"/>
+        <arg name="odom_alpha1"     value="0.1"/> <!-- bot-odom rot-rot noise -->
+        <arg name="odom_alpha2"     value="0.1"/> <!-- bot-odom tran-rot noise --> 
+        <arg name="odom_alpha3"     value="0.1"/> <!-- bot-odom tran-tran noise -->
+        <arg name="odom_alpha4"     value="0.1"/> <!-- bot-odom rot-tran noise -->
+    </include>
+    
+    <!-- move_base -->
+    <!-- Params -->
+    <arg name="costmap_common_name" value="my_costmap_common_params.yaml"/>
+    <arg name="costmap_global_name" value="my_global_costmap_params.yaml"/>
+    <arg name="costmap_local_name"  value="my_local_costmap_params.yaml"/>
+    <arg name="planner_name"        value="my_dwa_local_planner_params.yaml"/>
+    <arg name="move_base_name"      value="my_move_base_params.yaml"/>
+    <!-- move_base.launch -->
+    <include file="$(find maze_solver)/launch/move_base.launch">
+        <!-- Model type -->
+        <arg name="turtlebot3_model"    value="$(arg turtlebot3_model)"/>
+        <!-- Params -->
+        <arg name="costmap_common_file" value="$(find maze_solver)/param/$(arg costmap_common_name)"/>
+        <arg name="costmap_global_file" value="$(find maze_solver)/param/$(arg costmap_global_name)"/>
+        <arg name="costmap_local_file"  value="$(find maze_solver)/param/$(arg costmap_local_name)"/>
+        <arg name="planner_file"        value="$(find maze_solver)/param/$(arg planner_name)"/>
+        <arg name="move_base_file"      value="$(find maze_solver)/param/$(arg move_base_name)"/>
+    </include>
+    
+    <!-- RViz -->
+    <group if="$(arg open_rviz)">
+        <include file="$(find maze_solver)/launch/open_rviz.launch">
+            <arg name="package" value="navigation"/>
+            <arg name="rviz_bringup" value="false"/>
+            <arg name="rviz_bringup" value="true" unless="$(arg nav_bringup)"/>
+        </include>
+    </group>
+</launch>

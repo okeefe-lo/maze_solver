@@ -1,0 +1,27 @@
+<launch>
+    <!-- Configurable args -->
+    <arg name="package" default="gazebo"/>
+    <arg name="rviz_bringup" default="true"/>
+    <arg name="slam_method" default="gmapping"/>
+    
+    <!-- Bringup -->
+    <group if="$(arg rviz_bringup)">
+        <arg name="turtlebot3_model" default="$(env TURTLEBOT3_MODEL)"/>
+        <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
+            <arg name="model" value="$(arg turtlebot3_model)"/>
+        </include>
+    </group>
+    
+    <!-- Gazebo package -->
+    <group if="$(eval arg('package') == 'gazebo')">
+        <node pkg="rviz" name="rviz" type="rviz" args="-d $(find turtlebot3_gazebo)/rviz/turtlebot3_gazebo_model.rviz"/>
+    </group>
+    
+    <!-- Slam package -->
+    <group if="$(eval arg('package') == 'slam')">
+        <node pkg="rviz" name="rviz" type="rviz" args="-d $(find turtlebot3_slam)/rviz/turtlebot3_$(arg slam_method).rviz"/>
+    </group>
+    
+    <!-- Navigation package -->
+    <node pkg="rviz" name="rviz" type="rviz" args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz" if="$(eval arg('package') == 'navigation')"/>
+</launch> 
