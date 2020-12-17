@@ -44,15 +44,15 @@ class follower:
 
         for i in range(70,-2,-1) + range(359, 289,-1):
 
-            if   np.nan_to_num( self.msg.intensities[i] ) != 0 :
-                 laser_data.append(np.nan_to_num(self.msg.intensities[i]))
+            if   np.nan_to_num( self.msg.ranges[i] ) != 0 :
+                 laser_data.append(np.nan_to_num(self.msg.ranges[i]))
 
-            elif (i+1) in range(70,-2,-1) + range(359, 289,-1) and (i-1) in range(70,-2,-1) + range(359, 289,-1) and np.nan_to_num(self.msg.intensities[i]) == 0:
-                 laser_data.append((np.nan_to_num(self.msg.intensities[i+1])+np.nan_to_num(self.msg.intensities[i-1]))/2)
+            elif (i+1) in range(70,-2,-1) + range(359, 289,-1) and (i-1) in range(70,-2,-1) + range(359, 289,-1) and np.nan_to_num(self.msg.ranges[i]) == 0:
+                 laser_data.append((np.nan_to_num(self.msg.ranges[i+1])+np.nan_to_num(self.msg.ranges[i-1]))/2)
 
             else :
-                 laser_data.append(np.nan_to_num(self.msg.intensities[i]))
-                 print(self.msg.intensities[i], " ", np.nan_to_num(self.msg.intensities[i]))
+                 laser_data.append(np.nan_to_num(self.msg.ranges[i]))
+                 print(self.msg.ranges[i], " ", np.nan_to_num(self.msg.ranges[i]))
 
         laser_data_set.append(laser_data)
         

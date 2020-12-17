@@ -99,7 +99,7 @@ def controller():
         # Back left clearence to ensure robot will not hit wall when turning left (clearence is based off of 125 degrees left of robot center)
         left_clearence = .17
         # Distance to move after turning
-        move_dis = .3
+        move_dis = .25
         # Distance to move after passing wall before turning
         past_wall = .075
 
@@ -150,7 +150,7 @@ def controller():
                 print("Moving FORWARD")
             elif status == "TURNING":                
                 new_fwd_vel = 0
-                if (abs(diff) < .01):
+                if (abs(diff) < .012):
                     new_fwd_vel = d_fwd
                     new_ang_vel = 0
                     turn_pose = [current_pose[0], current_pose[1]]
@@ -164,7 +164,7 @@ def controller():
                     diff = diff + 2 * pi 
                 if abs(diff) > .05:
                     new_fwd_vel = 0
-                    if abs(diff) < .01:
+                    if abs(diff) < .012:
                         new_fwd_vel = d_fwd
                         new_ang_vel = 0
                         turn_pose = [current_pose[0], current_pose[1]]
