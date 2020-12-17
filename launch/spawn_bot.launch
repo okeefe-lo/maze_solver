@@ -11,7 +11,7 @@
     
     <!-- Spawn -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg turtlebot3_model).urdf.xacro" />
-    <node pkg="gazebo_ros" name="spawn_urdf" type="spawn_model" args="-urdf -model turtlebot3_$(arg turtlebot3_model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" /> 
+    <node pkg="gazebo_ros" name="spawn_urdf" type="spawn_model" args="-urdf -model $(arg bot_prefix) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" /> 
 
     <!-- Comm (for multiple robots) -->
     <group if="$(arg turn_comm_on)">
