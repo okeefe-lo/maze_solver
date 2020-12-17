@@ -1,8 +1,23 @@
 <launch>
+    <!-- Required args -->
     <arg name="turtlebot3_model"/>
+    
+    <!-- Configurable args -->
     <arg name="x_pos" default="0.0"/>
     <arg name="y_pos" default="0.0"/>
     <arg name="z_pos" default="0.0"/>
+    <arg name="turn_comm_on" default="false"/>
+    <arg name="bot_prefix"   default="mecha"/>
+    
+    <!-- Spawn -->
     <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg turtlebot3_model).urdf.xacro" />
-    <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf" args="-urdf -model turtlebot3_$(arg turtlebot3_model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" /> 
+    <node pkg="gazebo_ros" name="spawn_urdf" type="spawn_model" args="-urdf -model turtlebot3_$(arg turtlebot3_model) -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" /> 
+
+    <!-- Comm (for multiple robots) -->
+    <group if="$(arg turn_comm_on)">
+        <node pkg="robot_state_publisher" name="robot_state_publisher" type="robot_state_publisher" output="screen">
+            <param name="publish_frequency" type="double" value="50.0"/>
+            <param name="tf_prefix" value="$(arg bot_prefix)"/>
+        </node>
+    </group>
 </launch> 
