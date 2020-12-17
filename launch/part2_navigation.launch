@@ -32,6 +32,6 @@
         <arg name="turtlebot3_model" value="$(arg mecha)"/>
         <arg name="za_warudo_map"    value="$(find maze_solver)/maps/$(arg za_warudo_map)"/>
         <arg name="nav_bringup"      value="false" if="$(arg test_slam)"/>
-        <arg name="open_rviz"        vlaue="false" if="$(arg test_slam)"/>
+        <arg name="open_rviz"        value="false" if="$(arg test_slam)"/>
     </include>
 </launch> 
