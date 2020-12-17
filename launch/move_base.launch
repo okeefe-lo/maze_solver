@@ -1,21 +1,24 @@
-<launch>
-  <!-- Arguments -->
-  <arg name="model" default="$(env TURTLEBOT3_MODEL)" doc="model type [burger, waffle, waffle_pi]"/>
-  <arg name="cmd_vel_topic" default="/cmd_vel" />
-  <arg name="odom_topic" default="odom" />
-  <arg name="move_forward_only" default="false"/>
-
-  <!-- move_base -->
-  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
-    <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-    <rosparam file="$(find maze_solver)/param/costmap_common_params_$(arg model).yaml" command="load" ns="global_costmap" />
-    <rosparam file="$(find maze_solver)/param/costmap_common_params_$(arg model).yaml" command="load" ns="local_costmap" />
-    <rosparam file="$(find turtlebot3_navigation)/param/local_costmap_params.yaml" command="load" />
-    <rosparam file="$(find turtlebot3_navigation)/param/global_costmap_params.yaml" command="load" />
-    <rosparam file="$(find turtlebot3_navigation)/param/move_base_params.yaml" command="load" />
-    <rosparam file="$(find maze_solver)/param/dwa_local_planner_params_$(arg model).yaml" command="load" />
-    <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
-    <remap from="odom" to="$(arg odom_topic)"/>
-    <param name="DWAPlannerROS/min_vel_x" value="0.0" if="$(arg move_forward_only)" />
-  </node>
+<launch>    
+    <!-- Configurable args -->
+    <arg name="turtlebot3_model"    default="$(env TURTLEBOT3_MODEL)"/>
+    <arg name="costmap_common_file" default="$(find maze_solver)/param/costmap_common_params_$(arg turtlebot3_model).yaml"/>
+    <arg name="costmap_global_file" default="$(find maze_solver)/param/global_costmap_params.yaml"/>
+    <arg name="costmap_local_file"  default="$(find maze_solver)/param/local_costmap_params.yaml"/>
+    <arg name="planner_file"        default="$(find maze_solver)/param/dwa_local_planner_params_$(arg turtlebot3_model).yaml"/>
+    <arg name="move_base_file"      default="$(find maze_solver)/param/move_base_params.yaml"/>
+    
+    <!-- move_base node -->
+    <node pkg="move_base" name="move_base" type="move_base" output="screen">
+        <!-- Configurable -->
+        <rosparam file="$(arg costmap_common_file)" command="load" ns="global_costmap"/>
+        <rosparam file="$(arg costmap_common_file)" command="load" ns="local_costmap"/>
+        <rosparam file="$(arg costmap_global_file)" command="load"/>
+        <rosparam file="$(arg costmap_local_file)" command="load"/>
+        <rosparam file="$(arg planner_file)" command="load"/>
+        <rosparam file="$(arg move_base_file)" command="load"/>
+        <!-- Non-configurable -->
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/>
+        <remap from="cmd_vel" to="/cmd_vel"/>
+        <remap from="odom" to="odom"/>
+    </node>
 </launch>

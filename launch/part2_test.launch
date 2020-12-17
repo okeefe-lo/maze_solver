@@ -1,0 +1,37 @@
+<launch>
+    <!-- World -->
+    <arg name="za_warudo" value="maze2.world"/>
+    <include file="$(find maze_solver)/launch/create_world.launch">
+        <arg name="za_warudo" value="$(arg za_warudo)"/>
+    </include>
+
+    <!-- M TurtleBot3 -->
+    <arg name="mecha" value="burger"/>
+    <include file="$(find maze_solver)/launch/spawn_bot.launch">
+        <arg name="turtlebot3_model" value="$(arg mecha)"/>
+    </include>
+    
+    <!-- Collision test -->
+    <arg name="test_collision" default="false"/>
+    <group if="$(arg test_collision)">
+        <param name="cmd_vel_topic_name" value="/cmd_vel"/>
+        <node name="turtlebot3_drive" type="turtlebot3_drive" pkg="turtlebot3_gazebo" required="true" output="screen"/>
+    </group>
+    
+    <!-- SLAM -->
+    <arg name="test_slam" default="false"/>
+    <group if="$(arg test_slam)">
+        <include file="$(find maze_solver)/launch/slam_gmapping.launch">
+            <arg name="turtlebot3_model" value="$(arg mecha)"/>
+        </include>
+    </group>
+    
+    <!-- Navigation -->
+    <arg name="za_warudo_map" value="full.yaml"/>
+    <include file="$(find maze_solver)/launch/navigation.launch">
+        <arg name="turtlebot3_model" value="$(arg mecha)"/>
+        <arg name="za_warudo_map"    value="$(find maze_solver)/maps/$(arg za_warudo_map)"/>
+        <arg name="nav_bringup"      value="false" if="$(arg test_slam)"/>
+        <arg name="open_rviz"        vlaue="false" if="$(arg test_slam)"/>
+    </include>
+</launch> 
