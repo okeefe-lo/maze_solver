@@ -1,6 +1,7 @@
 # EECE5550 Group Project
 Read-me file for group project.
-
+<br/>
+In any terminal use the line `export TURTLEBOT3_MODEL=burger` before running any launch file.
 ## Maze Mapping
 Use the command `rosrun maze_solver master_maze.launch` to begin mapping maze.
 The robot will move through the entire maze and return to its starting location, when complete, use `rosrun map_server map_saver -f ~/directory/map_name` to save in desired location.
