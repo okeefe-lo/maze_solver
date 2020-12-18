@@ -4,7 +4,6 @@
   <env name="TURTLEBOT3_MODEL" value="$(arg model)" />
 
   <arg name="map_file" default="$(find maze_solver)/maps/full.yaml"/>
-  <arg name="move_forward_only" default="false"/>
 
   <arg name="master_x_pos" default="0"/>
   <arg name="master_y_pos" default="0"/>
@@ -28,10 +27,7 @@
     <arg name="initial_pose_a"            value="$(arg master_yaw)"/>
   </include>
 
-  <include file="$(find maze_solver)/launch/move_base.launch">
-    <arg name="model" value="$(arg model)" />
-    <arg name="move_forward_only" value="$(arg move_forward_only)"/>
-  </include>
+  <include file="$(find maze_solver)/launch/move_base.launch" />
 
   <include file="$(find turtlebot3_bringup)/launch/turtlebot3_remote.launch">
     <arg name="model" value="$(arg model)" />
