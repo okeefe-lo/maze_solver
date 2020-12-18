@@ -34,6 +34,8 @@ def target_callback(data):
     pub.publish(target)
     time.sleep(.1)
     pub.publish(target)
+    time.sleep(.1)
+    pub.publish(target)
 
 def odom_callback(data):
     """Updates position data"""
@@ -87,15 +89,17 @@ if __name__ == '__main__':
         spawn_pose = current_pose
 
         while not rospy.is_shutdown():
-            
+          
             # If robot has arrived at destination, wait 5 seconds before giving command to return to spawn
+            print((euclidean(current_pose, target_pose)))
             if (euclidean(current_pose, target_pose) < .05):
                 start_time = time.time()
                 time.sleep(5)
                 spawn(spawn_pose)
                 time.sleep(.1)
                 spawn(spawn_pose)
-
+                time.sleep(.1)
+                spawn(spawn_pose)
 
         rospy.spin()
 

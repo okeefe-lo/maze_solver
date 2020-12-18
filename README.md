@@ -8,7 +8,7 @@ The robot will move through the entire maze and return to its starting location,
   
 ## Maze Navigation
 Use the command `rosrun maze_solver master_nav.launch` to begin navigation tool.
-Send the command `rostopic pub /target geometry_msgs/Point '{x: -1.25, y: 0.13}'` with desired location. The robot will create a path to that location and wait 5 seconds upon arrivel before heading back to its initial position.
+Send the command `rostopic pub /target geometry_msgs/Point '{x: -1.25, y: 0.13}'` with desired location. The robot will create a path to that location and wait 5 seconds upon arrivel before heading back to its initial position. If the robot does not move, resend the command.
 
 ## Maze Rescue
 Use the command `rosrun maze_solver two_maze.launch` to begin rescue.
