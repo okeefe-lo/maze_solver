@@ -44,8 +44,14 @@ def command_callback(data):
     """Updates command data"""
     global angular_vel_command
     global linear_vel_command
+    global old_linear_vel_command
+    global old_angular_vel_command
+    old_linear_vel_command = linear_vel_command
+    old_angular_vel_command = angular_vel_command
     angular_vel_command = [data.angular.x, data.angular.y, data.angular.z]
     linear_vel_command = [data.linear.x, data.linear.y, data.linear.z]
+
+
 
 if __name__ == '__main__':
 
@@ -69,6 +75,12 @@ if __name__ == '__main__':
     global old_linear_acc_imu
     old_linear_acc_imu = [0, 0, 0]
 
+    global old_linear_vel_command
+    old_linear_vel_command = [0, 0, 0]
+
+    global old_angular_vel_command
+    old_angular_vel_command = [0, 0, 0]
+
     try:
         rospy.Subscriber("/imu", Imu, imu_callback)
         rospy.Subscriber("/odom", Odometry, odom_callback)
@@ -81,13 +93,13 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
             
             # If command velocity is not followed well enough, detect collision
-            if abs(linear_vel_command[0] - linear_vel_odom[0]) > .1:
+            # Made specifically for d_fwd value in mapping.py
+            if abs(old_linear_vel_command[0] - linear_vel_odom[0]) >= .02:
                 error = 1
-            if abs(angular_vel_command[0] - angular_vel_odom[0]) > .1:
-                error = 1   
 
             if error == 1:
                 print("COLLISION DETECTED")
+
 
         rospy.spin()
 
