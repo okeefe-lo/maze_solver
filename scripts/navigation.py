@@ -65,6 +65,8 @@ def spawn(initial_pose):
     target_pose = [initial_pose[0], initial_pose[1]]
 
     pub.publish(target)
+    time.sleep(.1)
+    pub.publish(target)
 
 if __name__ == '__main__':
 

@@ -5,6 +5,7 @@ import sys
 import rospy
 import numpy as np
 import time
+import os
 from math import pi
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist, PoseStamped
@@ -21,10 +22,17 @@ def communicate(send):
     pub.publish(target)
     time.sleep(.1)
     pub.publish(target)
+    print("RESCUER FOUND")
+    print("SLAVE SENT: " , target)
+
+    os.system('python follower.py')
 
 def comm_callback(data):
 
-    message = data.split()
+    print("SLAVE RECEIVED: " , data)
+
+    message = str(data)
+    message = message.split()
     if message[0] == "S":
         pass
     else:
@@ -43,12 +51,17 @@ def laser_callback(data):
 
     global robot_angle
 
+    count = 0
+
     global detected_status 
-    if detected_status == "Undetected":
-        for i in range(360):
-            if abs(ranges[i] - old_ranges[i]) > .1:
-                detected_status = "Detected"
-                robot_angle = i
+    for i in range(360):
+        if abs(ranges[i] - old_ranges[i]) > .1:
+            count = count + 1
+
+    if count > 1:
+        if detected_status == "Undetected":
+            detected_status = "Detected"
+            communicate("Hello")
 
     old_ranges = ranges
 
@@ -64,34 +77,16 @@ if __name__ == '__main__':
         global old_ranges
         old_ranges = np.empty(1) 
         
+        rospy.wait_for_message("/" + str(sys.argv[1]) + "/scan", LaserScan)
+
         rospy.Subscriber("/comm", String, comm_callback)
         rospy.Subscriber("/" + str(sys.argv[1]) + "/scan", LaserScan, laser_callback)
 
-        pub = rospy.Publisher("/" + str(sys.argv[1]) + "/cmd_vel", Twist, queue_size=0)
-        rate = rospy.Rate(20)
-
-        data = Twist()
 
         while not rospy.is_shutdown():
+            rospy.spin()
 
-            if detected_status == "Undetected":
-                new_fwd_vel = 0
-                new_ang_vel = 0
-            else:
-                pass
 
-            # Set data to publish
-            data.linear.x = new_fwd_vel
-            data.linear.y = 0
-            data.linear.z = 0
-            data.angular.x = 0
-            data.angular.y = 0
-            data.angular.z = new_ang_vel
-
-            # Publish data
-            pub.publish(data)
-
-            rate.sleep()
 
 
     except rospy.ROSInterruptException:

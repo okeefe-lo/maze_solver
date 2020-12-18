@@ -86,7 +86,8 @@ def controller():
 
         # Possible Status: Finding Wall, FORWARD, TURNING, SPAWN, IDENTIFY (defaults forward, searches for turns)
         status = "Finding Wall"
-        # Possible robot directions, assumes 90 degree turns only
+        # Possible robot directions, assumes 
+        # Location where robot passes wall on90 degree turns only
         directions = np.array([0, pi/2, pi, -pi/2, -pi])
 
         # Parameters to change
