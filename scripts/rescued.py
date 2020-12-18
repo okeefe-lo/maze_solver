@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Controls the movement of the robot"""
+"""Rescued robot that waits until it detecs it rescuer, then starts node to follow"""
 import sys
 import rospy
 import numpy as np
@@ -14,7 +14,7 @@ from nav_msgs.msg import Odometry
 from squaternion import Quaternion
 
 def communicate(send):
-
+    """Send message on /comm"""
     pub = rospy.Publisher("/comm", String, queue_size=0)
     target = String()
     target.data = "S " + send
@@ -32,7 +32,8 @@ def communicate(send):
     os.system('roslaunch maze_solver follower.launch')
 
 def comm_callback(data):
-
+    """Reads messages from slave"""
+    
     print("SLAVE RECEIVED: " , data)
 
     message = str(data)
@@ -86,7 +87,7 @@ if __name__ == '__main__':
         rospy.Subscriber("/comm", String, comm_callback)
         rospy.Subscriber("/" + str(sys.argv[1]) + "/scan", LaserScan, laser_callback)
 
-
+        # Prevents node from ending
         while not rospy.is_shutdown():
             rospy.spin()
 

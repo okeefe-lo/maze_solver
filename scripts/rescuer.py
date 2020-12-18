@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Controls the movement of the robot"""
+"""Navigates through the maze until it finds the missing robot, then returns to spawn"""
 import sys
 import rospy
 import numpy as np
@@ -14,6 +14,7 @@ from squaternion import Quaternion
 
 
 def communicate(send):
+    """Send message on /comm"""
 
     pub = rospy.Publisher("/comm", String, queue_size=0)
     target = String()
@@ -25,8 +26,8 @@ def communicate(send):
     
     print("MASTER SENT: " , target)
 
-
 def comm_callback(data):
+    """Reads messages from slave"""
 
     print("MASTER RECEIVED: " , data)
 
@@ -55,6 +56,7 @@ def laser_callback(data):
     ranges = data.ranges
 
 def euclidean(current, start):
+    """Returns euclidean distance betwen two points"""
     return (((current[0]-start[0]) ** 2) + ((current[1]-start[1]) ** 2)) ** .5
 
 def find_nearest(array, value):
@@ -65,7 +67,7 @@ def find_nearest(array, value):
     return array[index]
 
 def spawn():
-
+    """Sends message to return to spawn and closes the searching node"""
     global target_pose
     global spawn_pose
 
@@ -81,8 +83,6 @@ def spawn():
 
     target_pose = [spawn_pose[0], spawn_pose[1]]
 
-    pub.publish(target)
-    time.sleep(.1)
     pub.publish(target)
     time.sleep(.1)
     pub.publish(target)
@@ -252,4 +252,3 @@ if __name__ == '__main__':
 
     except rospy.ROSInterruptException:
         pass
-

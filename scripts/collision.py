@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Takes /target and publishes a 2D nav goal"""
+"""Checks for clear sign of collision"""
 import sys
 import rospy
 import time
@@ -25,7 +25,7 @@ def imu_callback(data):
     linear_vel_imu[2] = np.trapz([old_linear_acc_imu[2], data.linear_acceleration.z], dx=1/200)
 
 def odom_callback(data):
-    """Updates position data"""
+    """Updates position/velocity data"""
 
     global current_pose
     q = Quaternion(data.pose.pose.orientation.x, \
@@ -80,6 +80,7 @@ if __name__ == '__main__':
 
         while not rospy.is_shutdown():
             
+            # If command velocity is not followed well enough, detect collision
             if abs(linear_vel_command[0] - linear_vel_odom[0]) > .1:
                 error = 1
             if abs(angular_vel_command[0] - angular_vel_odom[0]) > .1:
