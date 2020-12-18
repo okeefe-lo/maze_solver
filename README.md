@@ -17,3 +17,6 @@ Use the command `rosrun maze_solver two_maze.launch` to begin rescue.
 The command `rosrun maze_solver two_maze_test1.launch` will launch the follower inside the maze, a 2D nav goal can be selected.
 <br/>
 The command `rosrun maze_solver two_maze_test2.launch` will launch the follower outside the maze, a 2D nav goal can be selected.
+
+## King of the Hill
+Use the command `roslaunch maze_solver deathmatch.launch` to spawn 4 robots in the center of the maze. Each robot will move forward with randomness. The winner is the robot that is closes to the center of the maze.
