@@ -1,5 +1,7 @@
 <launch>
     <!-- Configurable args -->
+    <arg name="x_pos" default="0.0"/>
+    <arg name="y_pos" default="0.0"/>
     <arg name="nav_bringup" default="true"/>
     <arg name="open_rviz"   default="true"/>
     
@@ -20,8 +22,8 @@
     <!-- AMCL -->
     <include file="$(find maze_solver)/launch/localization.launch">
         <!-- Initial filter state -->
-        <arg name="initial_pose_x" value="0.0"/> <!-- m -->
-        <arg name="initial_pose_y" value="0.0"/> <!-- m -->
+        <arg name="initial_pose_x" value="$(arg x_pos)"/> <!-- m -->
+        <arg name="initial_pose_y" value="$(arg y_pos)"/> <!-- m -->
         <arg name="initial_pose_a" value="0.0"/> <!-- rad -->
         <!-- Initial covariance -->
         <arg name="initial_cov_xx" value="$(eval 0.5*0.5)"/> <!-- m2; what's a good sigma value? -->

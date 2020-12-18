@@ -26,7 +26,7 @@
         </include>
     </group>
     
-    <!-- Navigation -->
+    <!-- Navigation/AMCL -->
     <arg name="za_warudo_map" value="full.yaml"/>
     <include file="$(find maze_solver)/launch/navigation.launch">
         <arg name="turtlebot3_model" value="$(arg mecha)"/>
@@ -34,4 +34,7 @@
         <arg name="nav_bringup"      value="false" if="$(arg test_slam)"/>
         <arg name="open_rviz"        value="false" if="$(arg test_slam)"/>
     </include>
+    
+    <!-- Navigation to exit -->
+    <node pkg="maze_solver" name="navigator" type="navigation.py" output="screen" args="0.0 0.0 0.0 0.0"/>
 </launch> 
