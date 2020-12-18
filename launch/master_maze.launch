@@ -38,6 +38,7 @@
     
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model turtlebot3_$(arg model) -x $(arg master_x_pos) -y $(arg master_y_pos) -z $(arg master_z_pos) -Y $(arg master_yaw) -param robot_description" />
   <node pkg="maze_solver" name="master_mapper" type="mapping.py" output="screen" />
+  <node pkg="maze_solver" name="master_collision" type="collision.py" output="screen" />
 
 
 

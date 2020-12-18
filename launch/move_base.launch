@@ -2,10 +2,10 @@
     <!-- Configurable args -->
     <arg name="turtlebot3_model"    default="$(env TURTLEBOT3_MODEL)"/>
     <arg name="costmap_common_file" default="$(find maze_solver)/param/costmap_common_params_$(arg turtlebot3_model).yaml"/>
-    <arg name="costmap_global_file" default="$(find maze_solver)/param/global_costmap_params.yaml"/>
-    <arg name="costmap_local_file"  default="$(find maze_solver)/param/local_costmap_params.yaml"/>
+    <arg name="costmap_global_file" default="$(find maze_solver)/param/my_global_costmap_params.yaml"/>
+    <arg name="costmap_local_file"  default="$(find maze_solver)/param/my_local_costmap_params.yaml"/>
     <arg name="planner_file"        default="$(find maze_solver)/param/dwa_local_planner_params_$(arg turtlebot3_model).yaml"/>
-    <arg name="move_base_file"      default="$(find maze_solver)/param/move_base_params.yaml"/>
+    <arg name="move_base_file"      default="$(find maze_solver)/param/my_move_base_params.yaml"/>
     
     <!-- move_base node -->
     <node pkg="move_base" name="move_base" type="move_base" output="screen">

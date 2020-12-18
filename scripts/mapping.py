@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Controls the movement of the robot"""
+"""Maps the entirety of the maze"""
 import sys
 import rospy
 import numpy as np
@@ -30,6 +30,7 @@ def odom_callback(data):
     current_pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler[0]]
 
 def euclidean(current, start):
+    """Returns euclidean distance betwen two points"""
     return (((current[0]-start[0]) ** 2) + ((current[1]-start[1]) ** 2)) ** .5
 
 def find_nearest(array, value):
@@ -86,7 +87,8 @@ def controller():
 
         # Possible Status: Finding Wall, FORWARD, TURNING, SPAWN, IDENTIFY (defaults forward, searches for turns)
         status = "Finding Wall"
-        # Possible robot directions, assumes 90 degree turns only
+        # Possible robot directions, assumes 
+        # Location where robot passes wall on90 degree turns only
         directions = np.array([0, pi/2, pi, -pi/2, -pi])
 
         # Parameters to change

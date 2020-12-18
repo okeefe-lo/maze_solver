@@ -1,0 +1,94 @@
+<launch>
+  
+  <arg name="model" default="burger" doc="model type [burger, waffle, waffle_pi]"/>
+  <env name="TURTLEBOT3_MODEL" value="$(arg model)" />
+  <arg name="first_name"  default="red"/>
+  <arg name="second_name" default="blue"/>
+  <arg name="third_name" default="yellow"/>
+  <arg name="fourth_name" default="green"/>
+
+  <arg name="red_x_pos" default="0.2"/>
+  <arg name="red_y_pos" default="0.0"/>
+  <arg name="red_z_pos" default="0.0"/>
+  <arg name="red_yaw"   default="-3.14"/>
+
+  <arg name="blue_x_pos" default="0"/>
+  <arg name="blue_y_pos" default=".2"/>
+  <arg name="blue_z_pos" default="0.0"/>
+  <arg name="blue_yaw"   default="-1.57"/>
+
+  <arg name="yellow_x_pos" default="-0.2"/>
+  <arg name="yellow_y_pos" default="0"/>
+  <arg name="yellow_z_pos" default="0.0"/>
+  <arg name="yellow_yaw"   default="0.0"/>
+
+  <arg name="green_x_pos" default="0"/>
+  <arg name="green_y_pos" default="-0.2"/>
+  <arg name="green_z_pos" default="0.0"/>
+  <arg name="green_yaw"   default="1.57"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find maze_solver)/worlds/maze2.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <group ns = "$(arg first_name)">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <rosparam file="$(find maze_solver)/config/LDS-01.yaml" param="laser_params"/>
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher1" output="screen">
+      <param name="publish_frequency" type="double" value="50.0" />
+      <param name="tf_prefix" value="$(arg first_name)" />
+    </node>
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg first_name) -x $(arg red_x_pos) -y $(arg red_y_pos) -z $(arg red_z_pos) -Y $(arg red_yaw) -param robot_description" />
+    <node pkg="maze_solver" name="forward" type="forward.py" output="screen" args="$(arg first_name)"/>
+
+  </group>
+
+  <group ns = "$(arg second_name)">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <rosparam file="$(find maze_solver)/config/LDS-01.yaml" param="laser_params"/>
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher2" output="screen">
+      <param name="publish_frequency" type="double" value="50.0" />
+      <param name="tf_prefix" value="$(arg second_name)" />
+    </node>
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg second_name) -x $(arg blue_x_pos) -y $(arg blue_y_pos) -z $(arg blue_z_pos) -Y $(arg blue_yaw) -param robot_description" />
+    <node pkg="maze_solver" name="forward" type="forward.py" output="screen" args="$(arg second_name)"/>
+  </group>
+
+  <group ns = "$(arg third_name)">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <rosparam file="$(find maze_solver)/config/LDS-01.yaml" param="laser_params"/>
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher3" output="screen">
+      <param name="publish_frequency" type="double" value="50.0" />
+      <param name="tf_prefix" value="$(arg third_name)" />
+    </node>
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg third_name) -x $(arg yellow_x_pos) -y $(arg yellow_y_pos) -z $(arg yellow_z_pos) -Y $(arg yellow_yaw) -param robot_description" />
+    <node pkg="maze_solver" name="forward" type="forward.py" output="screen" args="$(arg third_name)"/>
+  </group>
+
+  <group ns = "$(arg fourth_name)">
+    <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+    <rosparam file="$(find maze_solver)/config/LDS-01.yaml" param="laser_params"/>
+
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher4" output="screen">
+      <param name="publish_frequency" type="double" value="50.0" />
+      <param name="tf_prefix" value="$(arg fourth_name)" />
+    </node>
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg fourth_name) -x $(arg green_x_pos) -y $(arg green_y_pos) -z $(arg green_z_pos) -Y $(arg green_yaw) -param robot_description" />
+    <node pkg="maze_solver" name="forward" type="forward.py" output="screen" args="$(arg fourth_name)"/>
+  </group>
+
+  <node pkg="maze_solver" name="winner" type="winner.py" output="screen" args="$(arg first_name) $(arg second_name) $(arg third_name) $(arg fourth_name)"/>
+ 
+</launch>

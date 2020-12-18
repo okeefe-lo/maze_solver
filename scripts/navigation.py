@@ -10,9 +10,10 @@ from nav_msgs.msg import Odometry
 from squaternion import Quaternion
 
 def target_callback(data):
+    """Takes in location of point and publishes to proper topic"""
 
     # To send movement command from command line
-    # rostopic pub /target geometry_msgs/Point '{ -1.25, y: 0.13}'
+    # rostopic pub /target geometry_msgs/Point '{x: -1.25, y: 0.13}'
 
     print("MESSAGE RECEIVED")
 
@@ -33,6 +34,8 @@ def target_callback(data):
     pub.publish(target)
     time.sleep(.1)
     pub.publish(target)
+    time.sleep(.1)
+    pub.publish(target)
 
 def odom_callback(data):
     """Updates position data"""
@@ -46,10 +49,11 @@ def odom_callback(data):
     current_pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler[0]]
 
 def euclidean(current, start):
+    """Returns euclidean distance betwen two points"""
     return (((current[0]-start[0]) ** 2) + ((current[1]-start[1]) ** 2)) ** .5
 
 def spawn(initial_pose):
-
+    """Send the command to return to spawn location"""
     global target_pose
 
     pub = rospy.Publisher("/move_base_simple/goal", PoseStamped, queue_size=1)
@@ -64,6 +68,8 @@ def spawn(initial_pose):
 
     target_pose = [initial_pose[0], initial_pose[1]]
 
+    pub.publish(target)
+    time.sleep(.1)
     pub.publish(target)
 
 if __name__ == '__main__':
@@ -83,14 +89,16 @@ if __name__ == '__main__':
         spawn_pose = current_pose
 
         while not rospy.is_shutdown():
-            
+          
+            # If robot has arrived at destination, wait 5 seconds before giving command to return to spawn
             if (euclidean(current_pose, target_pose) < .05):
                 start_time = time.time()
-                time.sleep(6)
+                time.sleep(5)
                 spawn(spawn_pose)
                 time.sleep(.1)
                 spawn(spawn_pose)
-
+                time.sleep(.1)
+                spawn(spawn_pose)
 
         rospy.spin()
 

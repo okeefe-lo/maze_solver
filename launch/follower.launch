@@ -1,0 +1,12 @@
+<launch>
+  
+    <arg name="second_name" default="slave"/>
+
+    <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+      <remap from="scan" to="/$(arg second_name)/scan" />
+      <rosparam command="load" file="$(find maze_solver)/config/turtlebot3_follow_filter.yaml" />
+      <remap from="scan_filtered" to="/scan_filtered" />
+    </node>
+    <node pkg="maze_solver" type="follower" name="follower" output="screen" args="$(arg second_name)" />
+
+</launch>
