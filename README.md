@@ -12,4 +12,8 @@ Send the command `rostopic pub /target geometry_msgs/Point '{x: -1.25, y: 0.13}'
 
 ## Maze Rescue
 Use the command `rosrun maze_solver two_maze.launch` to begin rescue.
-  
+<br/>
+<br/>
+The command `rosrun maze_solver two_maze_test1.launch` will launch the follower inside the maze, a 2D nav goal can be selected.
+<br/>
+The command `rosrun maze_solver two_maze_test2.launch` will launch the follower outside the maze, a 2D nav goal can be selected.
