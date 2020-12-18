@@ -30,12 +30,12 @@ def comm_callback(data):
 
     print("MASTER RECEIVED: " , data)
 
-    message = data.split()
+    message = str(data)
+    message = message.split()
     if message[0] == "M":
         pass
     else:
-        if message[1] == "Hello":
-            spawn()
+        spawn()
 
 def odom_callback(data):
     """Updates position data"""
@@ -81,6 +81,10 @@ def spawn():
 
     target_pose = [spawn_pose[0], spawn_pose[1]]
 
+    pub.publish(target)
+    time.sleep(.1)
+    pub.publish(target)
+    time.sleep(.1)
     pub.publish(target)
     time.sleep(.1)
     pub.publish(target)

@@ -22,10 +22,14 @@ def communicate(send):
     pub.publish(target)
     time.sleep(.1)
     pub.publish(target)
+    time.sleep(.1)
+    pub.publish(target)
+    time.sleep(.1)
+    pub.publish(target)
     print("RESCUER FOUND")
     print("SLAVE SENT: " , target)
 
-    os.system('python follower.py')
+    os.system('roslaunch maze_solver follower.launch')
 
 def comm_callback(data):
 

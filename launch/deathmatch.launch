@@ -7,8 +7,6 @@
   <arg name="third_name" default="yellow"/>
   <arg name="fourth_name" default="green"/>
 
-  <arg name="map_file" default="$(find maze_solver)/maps/full.yaml"/>
-
   <arg name="red_x_pos" default="0.3"/>
   <arg name="red_y_pos" default="0.0"/>
   <arg name="red_z_pos" default="0.0"/>
@@ -50,7 +48,7 @@
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg model) -x $(arg red_x_pos) -y $(arg red_y_pos) -z $(arg red_z_pos) -Y $(arg red_yaw) -param robot_description" />
     <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
       <remap from="scan" to="/$(arg first_name)/scan" />
-      <rosparam command="load" file="$(find maze_solver)/config//deathmatch_filters/$(arg first_name)_follow_filter.yaml" />
+      <rosparam command="load" file="$(find maze_solver)/config/deathmatch_filters/$(arg first_name)_follow_filter.yaml" />
       <remap from="scan_filtered" to="/$(arg first_name)/scan_filtered" />
     </node>
     <node pkg="maze_solver" type="follower" name="follower" output="screen" args="$(arg first_name)" />
@@ -68,7 +66,7 @@
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg model) -x $(arg blue_x_pos) -y $(arg blue_y_pos) -z $(arg blue_z_pos) -Y $(arg blue_yaw) -param robot_description" />
     <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
       <remap from="scan" to="/$(arg second_name)/scan" />
-      <rosparam command="load" file="$(find maze_solver)/config//deathmatch_filters/$(arg second_name)_follow_filter.yaml" />
+      <rosparam command="load" file="$(find maze_solver)/config/deathmatch_filters/$(arg second_name)_follow_filter.yaml" />
       <remap from="scan_filtered" to="/$(arg second_name)/scan_filtered" />
     </node>
     <node pkg="maze_solver" type="follower" name="follower" output="screen" args="$(arg second_name)" />
@@ -86,7 +84,7 @@
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg model) -x $(arg yellow_x_pos) -y $(arg yellow_y_pos) -z $(arg yellow_z_pos) -Y $(arg yellow_yaw) -param robot_description" />
     <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
       <remap from="scan" to="/$(arg third_name)/scan" />
-      <rosparam command="load" file="$(find maze_solver)/config//deathmatch_filters/$(arg third_name)_follow_filter.yaml" />
+      <rosparam command="load" file="$(find maze_solver)/config/deathmatch_filters/$(arg third_name)_follow_filter.yaml" />
       <remap from="scan_filtered" to="/$(arg third_name)/scan_filtered" />
     </node>
     <node pkg="maze_solver" type="follower" name="follower" output="screen" args="$(arg third_name)" />
@@ -104,7 +102,7 @@
     <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model $(arg model) -x $(arg green_x_pos) -y $(arg green_y_pos) -z $(arg green_z_pos) -Y $(arg green_yaw) -param robot_description" />
     <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
       <remap from="scan" to="/$(arg fourth_name)/scan" />
-      <rosparam command="load" file="$(find maze_solver)/config//deathmatch_filters/$(arg fourth_name)_follow_filter.yaml" />
+      <rosparam command="load" file="$(find maze_solver)/config/deathmatch_filters/$(arg fourth_name)_follow_filter.yaml" />
       <remap from="scan_filtered" to="/$(arg fourth_name)/scan_filtered" />
     </node>
     <node pkg="maze_solver" type="follower" name="follower" output="screen" args="$(arg fourth_name)" />
