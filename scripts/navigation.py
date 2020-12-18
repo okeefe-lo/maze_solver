@@ -91,7 +91,6 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
           
             # If robot has arrived at destination, wait 5 seconds before giving command to return to spawn
-            print((euclidean(current_pose, target_pose)))
             if (euclidean(current_pose, target_pose) < .05):
                 start_time = time.time()
                 time.sleep(5)
