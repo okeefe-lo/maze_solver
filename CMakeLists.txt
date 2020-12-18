@@ -165,6 +165,7 @@ catkin_install_python(PROGRAMS
   scripts/rescuer.py
   scripts/rescued.py
   scripts/collision.py
+  scripts/forward.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
