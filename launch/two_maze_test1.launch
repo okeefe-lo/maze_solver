@@ -7,7 +7,7 @@
 
   <arg name="map_file" default="$(find maze_solver)/maps/full.yaml"/>
 
-  <arg name="master_x_pos" default="0"/>
+  <arg name="master_x_pos" default="-.8"/>
   <arg name="master_y_pos" default="-.15"/>
   <arg name="master_z_pos" default="0.0"/>
   <arg name="master_yaw"   default="0.0"/>
