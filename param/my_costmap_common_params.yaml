@@ -5,7 +5,7 @@ raytrace_range: 3.5
 #robot_radius: 0.105
 
 #inflation_radius: 1.0
-cost_scaling_factor: 0.5
+cost_scaling_factor: 0.0
 
 map_type: costmap
 transform_tolerance: 0.2

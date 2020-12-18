@@ -88,6 +88,8 @@ def spawn():
     pub.publish(target)
     time.sleep(.1)
     pub.publish(target)
+    time.sleep(.1)
+    pub.publish(target)
 
     rospy.signal_shutdown("Robot Found: Exiting Maze")
 
